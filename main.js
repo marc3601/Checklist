@@ -35,11 +35,6 @@ app.whenReady().then(() => {
       e.reply("send-tankers", rows);
     });
   });
-
-  // new Notification({
-  //   title: NOTIFICATION_TITLE,
-  //   body: NOTIFICATION_BODY,
-  // }).show();
 });
 
 //app ID for Windows notifications

@@ -3,6 +3,8 @@ class View {
     this.root = root;
   }
 
+  static dataListener = (e, data) => {};
+
   static renderItem(item, parent) {
     const tempRef = document.createElement(item.type);
     parent.appendChild(tempRef);
@@ -30,11 +32,15 @@ class View {
 
   static getData([...events]) {
     return new Promise((resolve, reject) => {
-      ipcRenderer.send(events[0]);
-
-      ipcRenderer.on(events[1], (e, data) => {
+      const eventName = events[1];
+      if (ipcRenderer.listenerCount(eventName) > 0) {
+        ipcRenderer.removeListener(eventName, this.dataListener);
+      }
+      this.dataListener = (e, data) => {
         resolve(data);
-      });
+      };
+      ipcRenderer.send(events[0]);
+      ipcRenderer.on(eventName, this.dataListener);
     });
   }
 
