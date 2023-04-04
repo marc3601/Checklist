@@ -1,11 +1,19 @@
-const { ipcRenderer, View } = window;
+const { View } = window;
 
-let currentScreen = "";
+// Global state object
+const stateContainer = {
+  currentScreen: "",
+  addVehicleState: {
+    registration: "",
+    sideNumber: "",
+    equipmentList: [""],
+  },
+};
+
 // Screens render functions
-
 const addVehicleScreen = () => {
-  if (currentScreen !== "add_vehicle") {
-    currentScreen = "add_vehicle";
+  if (stateContainer.currentScreen !== "add_vehicle") {
+    stateContainer.currentScreen = "add_vehicle";
     while (root.firstChild) {
       root.removeChild(root.firstChild);
     }
@@ -15,12 +23,13 @@ const addVehicleScreen = () => {
       addVehicleContainer,
       optionsContainer,
     ]);
+    handleAddEquipment();
   }
 };
 
 const homeScreen = () => {
-  if (currentScreen !== "home") {
-    currentScreen = "home";
+  if (stateContainer.currentScreen !== "home") {
+    stateContainer.currentScreen = "home";
     while (root.firstChild) {
       root.removeChild(root.firstChild);
     }
@@ -33,7 +42,7 @@ const homeScreen = () => {
 
     const tank_list = document.getElementById("tank_list");
     /// Fetch and render list of license plates in main view
-    const listItem = (license, no) => {
+    const licensePlateItem = (license, no) => {
       return {
         type: "li",
         className:
@@ -61,7 +70,9 @@ const homeScreen = () => {
           (() => {
             const dataToRender = [];
             data.forEach((item) =>
-              dataToRender.push(listItem(item.licensePlate, item.Number))
+              dataToRender.push(
+                licensePlateItem(item.licensePlate, item.Number)
+              )
             );
             return dataToRender;
           })()
@@ -178,6 +189,7 @@ const addVehicleContainer = {
         {
           type: "input",
           placeholder: "PO XXXX",
+          id: "registration",
           className:
             "text-xl	p-2 rounded-lg shadow-md focus:shadow-lg transition-shadow focus:outline-0  w-3/4",
         },
@@ -189,6 +201,7 @@ const addVehicleContainer = {
         {
           type: "input",
           placeholder: "XXX",
+          id: "side_number",
           className:
             "text-xl	p-2 rounded-md shadow-md focus:shadow-lg transition-shadow focus:outline-0 w-1/2",
         },
@@ -198,38 +211,127 @@ const addVehicleContainer = {
           textContent: "Wyposażenie pojazdu",
         },
         {
-          type: "div",
-          className: "flex items-center mt-6",
-          children: [
-            {
-              type: "div",
-              className: "input basis-3/4",
-              children: [
-                {
-                  type: "input",
-                  className:
-                    "w-full text-xl	p-4 rounded-md shadow-md focus:shadow-lg transition-shadow focus:outline-0",
-                  placeholder: "Dodaj wyposażenie",
-                },
-              ],
-            },
-            {
-              type: "div",
-              className: "button text-right cursor-pointer ml-4",
-              children: [
-                {
-                  type: "img",
-                  className:
-                    "bg-green-600 active:bg-green-500 shadow-md	rounded-xl	  p-2",
-                  src: "./images/add.svg",
-                },
-              ],
-            },
-          ],
+          type: "ul",
+          id: "equipment_list",
+          className: "mt-6",
         },
       ],
     },
   ],
 };
+
+//Utility functions
+const handleAddEquipment = () => {
+  const eqli = document.getElementById("equipment_list");
+  const registr = document.getElementById("registration");
+  const side_nr = document.getElementById("side_number");
+
+  registr.value = stateContainer.addVehicleState.registration;
+  side_nr.value = stateContainer.addVehicleState.sideNumber;
+
+  registr.addEventListener("change", (e) => {
+    const input_value = e.target.value;
+    stateContainer.addVehicleState.registration = input_value;
+  });
+  side_nr.addEventListener("change", (e) => {
+    const input_value = e.target.value;
+    stateContainer.addVehicleState.sideNumber = input_value;
+  });
+
+  const equipment_list_add = new View(eqli);
+  let last;
+  equipment_list_add.renderView(
+    (() => {
+      return stateContainer.addVehicleState.equipmentList.map((item, id) => ({
+        type: "li",
+        className: "flex mt-2 mb-4 items-center",
+        id: `equipment_${id}`,
+        children: [
+          {
+            type: "div",
+            className: "input basis-3/4",
+            children: [
+              {
+                type: "input",
+                value: item,
+                className:
+                  "w-full text-xl	p-4 rounded-md shadow-md focus:shadow-lg transition-shadow focus:outline-0",
+                placeholder: "Dodaj wyposażenie",
+                disabled: (last =
+                  id === stateContainer.addVehicleState.equipmentList.length - 1
+                    ? false
+                    : true),
+                eventHandler: {
+                  event: "change",
+                  handler: (e) => {
+                    const inputValue = e.target.value;
+                  },
+                },
+              },
+            ],
+          },
+          {
+            type: "div",
+            className: "button text-right cursor-pointer ml-4",
+            children: [
+              {
+                type: "img",
+                className: `${
+                  !last
+                    ? "bg-green-600 active:bg-green-500"
+                    : "bg-red-600 active:bg-red-500"
+                }  shadow-md	rounded-xl p-2`,
+                src: `./images/${!last ? "add" : "delete"}.svg`,
+              },
+            ],
+            eventHandler: {
+              event: "pointerdown",
+              handler: (e) => {
+                const inputValue =
+                  e.currentTarget.previousSibling.children[0].value;
+                const isRed = e.target.className.includes("red");
+                if (inputValue !== "" && !isRed) {
+                  if (stateContainer.addVehicleState.equipmentList[0] === "") {
+                    stateContainer.addVehicleState.equipmentList = [];
+                    stateContainer.addVehicleState.equipmentList.push(
+                      inputValue
+                    );
+                    stateContainer.addVehicleState.equipmentList.push("");
+                  } else if (
+                    stateContainer.addVehicleState.equipmentList.length >= 2
+                  ) {
+                    stateContainer.addVehicleState.equipmentList.pop();
+                    stateContainer.addVehicleState.equipmentList.push(
+                      inputValue
+                    );
+                    stateContainer.addVehicleState.equipmentList.push("");
+                  }
+                  while (eqli.firstChild) {
+                    eqli.removeChild(eqli.firstChild);
+                  }
+                  handleAddEquipment();
+                } else if (isRed) {
+                  const filter =
+                    e.currentTarget.previousSibling.firstChild.value;
+                  const filtered =
+                    stateContainer.addVehicleState.equipmentList.filter(
+                      (item) => item !== filter
+                    );
+
+                  stateContainer.addVehicleState.equipmentList = filtered;
+                  while (eqli.firstChild) {
+                    eqli.removeChild(eqli.firstChild);
+                  }
+                  handleAddEquipment();
+                }
+              },
+            },
+          },
+        ],
+      }));
+    })()
+  );
+};
+
 // Home screen initial render
 homeScreen();
