@@ -56,3 +56,17 @@ class View {
 }
 
 module.exports = View;
+
+// This is class named View that has several static methods and a constructor that takes a root parameter.
+// The renderView() method iterates through an array of items and calls
+// the static renderItem() method for each item.
+// The renderItem() method creates a new element with the type specified in the item object
+// and appends it to the parent element
+// specified in the parent parameter.
+// It then iterates through the keys of the item object and sets the attributes of the newly created
+// element based on the keys of the item object. If the item object has a children array,
+// it recursively calls renderItem() for each child.
+// The getData() method returns a promise that sends a message to the main process with the first element
+// of the events array and
+// listens for an event with the second element of the events array.
+// When the event is received, it resolves the promise with the received data.

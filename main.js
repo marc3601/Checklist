@@ -45,7 +45,7 @@ app.on("window-all-closed", () => {
 });
 
 //database insert
-// db.serialize(() => {
-//   db.run("CREATE TABLE IF NOT EXISTS Tankers (Number, licensePlate)");
-//   db.run("INSERT INTO Tankers VALUES (?, ?)", ["42", "PO 8PK34"]);
-// });
+db.serialize(() => {
+  // db.run("CREATE TABLE IF NOT EXISTS Tankers (Number, licensePlate)");
+  // db.run("INSERT INTO Tankers VALUES (?, ?)", ["45", "CIN AJ29"]);
+});

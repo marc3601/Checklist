@@ -41,7 +41,6 @@ const homeScreen = () => {
     ]);
 
     const tank_list = document.getElementById("tank_list");
-    /// Fetch and render list of license plates in main view
     const licensePlateItem = (license, no) => {
       return {
         type: "li",
@@ -63,6 +62,7 @@ const homeScreen = () => {
       };
     };
 
+    /// Fetch and render list of license plates in main view
     const listOfTankers = new View(tank_list);
     View.getData(["request-tankers", "send-tankers"])
       .then((data) => {
@@ -215,6 +215,26 @@ const addVehicleContainer = {
           id: "equipment_list",
           className: "mt-6",
         },
+        {
+          type: "div",
+          children: [
+            {
+              type: "div",
+              id: "save_button",
+              className:
+                "cursor-pointer inline-block text-xl text-white	bg-green-600 active:bg-green-500 rounded-md	p-2 pl-8 pr-8",
+              textContent: "Zapisz",
+              eventHandler: {
+                event: "pointerdown",
+                handler: () => {
+                  if (stateContainer.addVehicleState.equipmentList.length > 1) {
+                    console.log(stateContainer.addVehicleState);
+                  }
+                },
+              },
+            },
+          ],
+        },
       ],
     },
   ],
@@ -245,7 +265,7 @@ const handleAddEquipment = () => {
       return stateContainer.addVehicleState.equipmentList.map((item, id) => ({
         type: "li",
         className: "flex mt-2 mb-4 items-center",
-        id: `equipment_${id}`,
+        id: id,
         children: [
           {
             type: "div",
@@ -273,6 +293,7 @@ const handleAddEquipment = () => {
           {
             type: "div",
             className: "button text-right cursor-pointer ml-4",
+            id: id,
             children: [
               {
                 type: "img",
@@ -311,14 +332,10 @@ const handleAddEquipment = () => {
                   }
                   handleAddEquipment();
                 } else if (isRed) {
-                  const filter =
-                    e.currentTarget.previousSibling.firstChild.value;
-                  const filtered =
-                    stateContainer.addVehicleState.equipmentList.filter(
-                      (item) => item !== filter
-                    );
-
-                  stateContainer.addVehicleState.equipmentList = filtered;
+                  stateContainer.addVehicleState.equipmentList.splice(
+                    e.currentTarget.id,
+                    1
+                  );
                   while (eqli.firstChild) {
                     eqli.removeChild(eqli.firstChild);
                   }
