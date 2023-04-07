@@ -66,12 +66,13 @@ const homeScreen = () => {
     const listOfTankers = new View(tank_list);
     View.getData(["request-tankers", "send-tankers"])
       .then((data) => {
+        console.log(data);
         listOfTankers.renderView(
           (() => {
             const dataToRender = [];
             data.forEach((item) =>
               dataToRender.push(
-                licensePlateItem(item.licensePlate, item.Number)
+                licensePlateItem(item.registration, item.sideNumber)
               )
             );
             return dataToRender;
@@ -217,6 +218,7 @@ const addVehicleContainer = {
         },
         {
           type: "div",
+          className: "button_container",
           children: [
             {
               type: "div",
@@ -228,7 +230,15 @@ const addVehicleContainer = {
                 event: "pointerdown",
                 handler: () => {
                   if (stateContainer.addVehicleState.equipmentList.length > 1) {
-                    console.log(stateContainer.addVehicleState);
+                    const list =
+                      stateContainer.addVehicleState.equipmentList.filter(
+                        (item) => item !== ""
+                      );
+                    View.setData("save-equipment", {
+                      registration: stateContainer.addVehicleState.registration,
+                      sideNumber: stateContainer.addVehicleState.sideNumber,
+                      equipmentList: list,
+                    });
                   }
                 },
               },
@@ -281,12 +291,6 @@ const handleAddEquipment = () => {
                   id === stateContainer.addVehicleState.equipmentList.length - 1
                     ? false
                     : true),
-                eventHandler: {
-                  event: "change",
-                  handler: (e) => {
-                    const inputValue = e.target.value;
-                  },
-                },
               },
             ],
           },

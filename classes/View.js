@@ -1,3 +1,5 @@
+const { ipcRenderer } = require("electron");
+
 class View {
   constructor(root) {
     this.root = root;
@@ -42,6 +44,10 @@ class View {
       ipcRenderer.send(events[0]);
       ipcRenderer.on(eventName, this.dataListener);
     });
+  }
+
+  static setData(event, data) {
+    ipcRenderer.send(event, data);
   }
 
   renderView([...items]) {
