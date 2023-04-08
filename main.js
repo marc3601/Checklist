@@ -1,3 +1,4 @@
+const { rejects } = require("assert");
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 
@@ -36,6 +37,12 @@ app.whenReady().then(() => {
     });
   });
 
+  ipcMain.on("request-checklist", (e, requestData) => {
+    getVehicleChecklist(requestData).then((container) => {
+      e.reply("send-checklist", container);
+    });
+  });
+
   ipcMain.on("save-equipment", (event, data) => {
     db.serialize(() => {
       db.run(
@@ -68,23 +75,31 @@ app.on("window-all-closed", () => {
   app.quit();
 });
 
-// Get specified vehicle list of equipment
-// db.serialize(() => {
-//   db.get(
-//     `SELECT * FROM vehicles WHERE registration = 'PO 2CY97'`,
-//     function (err, rows) {
-//       if (err) console.error(err);
-//       console.log(rows);
-//     }
-//   );
-//   db.all(
-//     `SELECT equipment_item FROM vehicle_equipment_lists WHERE equipment_id = (SELECT id FROM vehicles WHERE registration = 'PO 2CY97');`,
-//     function (err, rows) {
-//       if (err) console.error(err);
-//       console.log(rows);
-//     }
-//   );
-// });
+getVehicleChecklist = (vehicle) => {
+  return new Promise((resolve, reject) => {
+    // Get specified vehicle list of equipment
+    const container = { vehicle: {}, equipment: [] };
+    db.serialize(() => {
+      db.get(
+        `SELECT * FROM vehicles WHERE registration = ?`,
+        [vehicle],
+        function (err, rows) {
+          if (err) reject(err);
+          container.vehicle = rows;
+        }
+      );
+      db.all(
+        `SELECT equipment_item FROM vehicle_equipment_lists WHERE equipment_id = (SELECT id FROM vehicles WHERE registration = ?);`,
+        [vehicle],
+        function (err, rows) {
+          if (err) reject(err);
+          container.equipment = rows;
+          resolve(container);
+        }
+      );
+    });
+  });
+};
 
 // Database create
 db.serialize(() => {

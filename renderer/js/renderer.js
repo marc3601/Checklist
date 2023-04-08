@@ -20,10 +20,24 @@ const addVehicleScreen = () => {
     const addVehicleView = new View(root);
     addVehicleView.renderView([
       titleContainer("Dodaj pojazd"),
-      addVehicleContainer,
-      optionsContainer,
+      addVehicleContainer(equipmentListComponent),
+      optionsContainer(),
     ]);
     handleAddEquipment();
+  }
+};
+const addChecklistScreen = (vehicle) => {
+  if (stateContainer.currentScreen !== "complete_checklist") {
+    stateContainer.currentScreen = "complete_checklist";
+    while (root.firstChild) {
+      root.removeChild(root.firstChild);
+    }
+    const completeChecklistView = new View(root);
+    completeChecklistView.renderView([
+      titleContainer(vehicle),
+      addVehicleContainer(),
+      optionsContainer(),
+    ]);
   }
 };
 
@@ -36,8 +50,8 @@ const homeScreen = () => {
     const tankersView = new View(root);
     tankersView.renderView([
       titleContainer("Wybierz pojazd"),
-      listContainer,
-      optionsContainer,
+      listContainer(),
+      optionsContainer(),
     ]);
 
     const tank_list = document.getElementById("tank_list");
@@ -46,6 +60,22 @@ const homeScreen = () => {
         type: "li",
         className:
           "ring-1 ring-offset-2 ring-zinc-950 rounded-md bg-white	 mb-3 cursor-pointer flex flex-row",
+        id: `${license}`,
+        eventHandler: {
+          event: "pointerdown",
+          handler: (e) => {
+            View.getData(
+              ["request-checklist", "send-checklist"],
+              e.currentTarget.id
+            )
+              .then((data) => {
+                addChecklistScreen(
+                  `Checklista pojazdu: ${data.vehicle.registration}`
+                );
+              })
+              .catch((err) => console.error(err));
+          },
+        },
         children: [
           {
             type: "div",
@@ -66,7 +96,6 @@ const homeScreen = () => {
     const listOfTankers = new View(tank_list);
     View.getData(["request-tankers", "send-tankers"])
       .then((data) => {
-        console.log(data);
         listOfTankers.renderView(
           (() => {
             const dataToRender = [];
@@ -99,156 +128,163 @@ const titleContainer = (text) => {
   };
 };
 
-const listContainer = {
-  type: "div",
-  className: "w-full rounded-lg mt-4",
-  children: [
-    {
-      type: "ul",
-      id: "tank_list",
-      className:
-        "w-4/5 shadow-xl rounded-lg text-center mx-auto p-6 bg-indigo-50 overflow-y-auto landscape:h-96",
-    },
-  ],
+const listContainer = () => {
+  return {
+    type: "div",
+    className: "w-full rounded-lg mt-4",
+    children: [
+      {
+        type: "ul",
+        id: "tank_list",
+        className:
+          "w-4/5 shadow-xl rounded-lg text-center mx-auto p-6 bg-indigo-50 overflow-y-auto landscape:h-96",
+      },
+    ],
+  };
 };
 
-const optionsContainer = {
-  type: "div",
-  id: "options",
-  className:
-    "w-4/5 shadow-xl mx-auto bg-indigo-100 rounded-lg mt-4 p-2 flex justify-around",
-  children: [
-    {
-      type: "div",
-      className: "rounded-md shadow-2xl cursor-pointer",
-      children: [
-        {
-          type: "img",
-          className: "bg-blue-500 active:bg-blue-400 rounded-md	p-2",
-          src: "./images/home.svg",
+const optionsContainer = () => {
+  return {
+    type: "div",
+    id: "options",
+    className:
+      "w-4/5 shadow-xl mx-auto bg-indigo-100 rounded-lg mt-4 p-2 flex justify-around",
+    children: [
+      {
+        type: "div",
+        className: "rounded-md shadow-2xl cursor-pointer",
+        children: [
+          {
+            type: "img",
+            className: "bg-blue-500 active:bg-blue-400 rounded-md	p-2",
+            src: "./images/home.svg",
+          },
+        ],
+        eventHandler: {
+          event: "pointerdown",
+          handler: homeScreen,
         },
-      ],
-      eventHandler: {
-        event: "pointerdown",
-        handler: homeScreen,
       },
-    },
-    {
-      type: "div",
-      className: "rounded-md shadow-md cursor-pointer",
-      children: [
-        {
-          type: "img",
-          className: "bg-green-600 active:bg-green-500 rounded-md	p-2",
-          src: "./images/add.svg",
+      {
+        type: "div",
+        className: "rounded-md shadow-md cursor-pointer",
+        children: [
+          {
+            type: "img",
+            className: "bg-green-600 active:bg-green-500 rounded-md	p-2",
+            src: "./images/add.svg",
+          },
+        ],
+        eventHandler: {
+          event: "pointerdown",
+          handler: addVehicleScreen,
         },
-      ],
-      eventHandler: {
-        event: "pointerdown",
-        handler: addVehicleScreen,
       },
-    },
-    {
-      type: "div",
-      className: "rounded-md shadow-md cursor-pointer",
-      children: [
-        {
-          type: "img",
-          className: "bg-violet-600	rounded-md	p-2",
-          src: "./images/list.svg",
-        },
-      ],
-    },
-    {
-      type: "div",
-      className: "rounded-md shadow-md cursor-pointer",
-      children: [
-        {
-          type: "img",
-          className: "bg-red-600 rounded-md	p-2",
-          src: "./images/delete.svg",
-        },
-      ],
-    },
-  ],
+      {
+        type: "div",
+        className: "rounded-md shadow-md cursor-pointer",
+        children: [
+          {
+            type: "img",
+            className: "bg-violet-600	rounded-md	p-2",
+            src: "./images/list.svg",
+          },
+        ],
+      },
+      {
+        type: "div",
+        className: "rounded-md shadow-md cursor-pointer",
+        children: [
+          {
+            type: "img",
+            className: "bg-red-600 rounded-md	p-2",
+            src: "./images/delete.svg",
+          },
+        ],
+      },
+    ],
+  };
 };
 
-const addVehicleContainer = {
-  type: "div",
-  className: "w-full rounded-lg mt-4",
-  children: [
-    {
-      type: "div",
-      className:
-        "custom_container w-4/5 shadow-xl rounded-lg mx-auto p-10 bg-indigo-50 overflow-y-auto landscape:h-96",
-      children: [
-        {
-          type: "div",
-          className: "text-xl	mb-2",
-          textContent: "Numer rejestracyjny:",
-        },
-        {
-          type: "input",
-          placeholder: "PO XXXX",
-          id: "registration",
-          className:
-            "text-xl	p-2 rounded-lg shadow-md focus:shadow-lg transition-shadow focus:outline-0  w-3/4",
-        },
-        {
-          type: "div",
-          className: "text-xl	mb-2 mt-2",
-          textContent: "Numer boczny:",
-        },
-        {
-          type: "input",
-          placeholder: "XXX",
-          id: "side_number",
-          className:
-            "text-xl	p-2 rounded-md shadow-md focus:shadow-lg transition-shadow focus:outline-0 w-1/2",
-        },
-        {
-          type: "h2",
-          className: "text-2xl text-center mt-6",
-          textContent: "Wyposażenie pojazdu",
-        },
-        {
-          type: "ul",
-          id: "equipment_list",
-          className: "mt-6",
-        },
-        {
-          type: "div",
-          className: "button_container",
-          children: [
-            {
-              type: "div",
-              id: "save_button",
-              className:
-                "cursor-pointer inline-block text-xl text-white	bg-green-600 active:bg-green-500 rounded-md	p-2 pl-8 pr-8",
-              textContent: "Zapisz",
-              eventHandler: {
-                event: "pointerdown",
-                handler: () => {
-                  if (stateContainer.addVehicleState.equipmentList.length > 1) {
-                    const list =
-                      stateContainer.addVehicleState.equipmentList.filter(
-                        (item) => item !== ""
-                      );
-                    View.setData("save-equipment", {
-                      registration: stateContainer.addVehicleState.registration,
-                      sideNumber: stateContainer.addVehicleState.sideNumber,
-                      equipmentList: list,
-                    });
-                  }
-                },
-              },
-            },
-          ],
-        },
-      ],
-    },
-  ],
+const addVehicleContainer = (children) => {
+  return {
+    type: "div",
+    className: "w-full rounded-lg mt-4",
+    children: [
+      {
+        type: "div",
+        className:
+          "custom_container w-4/5 shadow-xl rounded-lg mx-auto p-10 bg-indigo-50 overflow-y-auto landscape:h-96",
+        children,
+      },
+    ],
+  };
 };
+
+const equipmentListComponent = [
+  {
+    type: "div",
+    className: "text-xl	mb-2",
+    textContent: "Numer rejestracyjny:",
+  },
+  {
+    type: "input",
+    placeholder: "PO XXXX",
+    id: "registration",
+    className:
+      "text-xl	p-2 rounded-lg shadow-md focus:shadow-lg transition-shadow focus:outline-0  w-3/4",
+  },
+  {
+    type: "div",
+    className: "text-xl	mb-2 mt-2",
+    textContent: "Numer boczny:",
+  },
+  {
+    type: "input",
+    placeholder: "XXX",
+    id: "side_number",
+    className:
+      "text-xl	p-2 rounded-md shadow-md focus:shadow-lg transition-shadow focus:outline-0 w-1/2",
+  },
+  {
+    type: "h2",
+    className: "text-2xl text-center mt-6",
+    textContent: "Wyposażenie pojazdu",
+  },
+  {
+    type: "ul",
+    id: "equipment_list",
+    className: "mt-6",
+  },
+  {
+    type: "div",
+    className: "button_container",
+    children: [
+      {
+        type: "div",
+        id: "save_button",
+        className:
+          "cursor-pointer inline-block text-xl text-white	bg-green-600 active:bg-green-500 rounded-md	p-2 pl-8 pr-8",
+        textContent: "Zapisz",
+        eventHandler: {
+          event: "pointerdown",
+          handler: () => {
+            if (stateContainer.addVehicleState.equipmentList.length > 1) {
+              const list = stateContainer.addVehicleState.equipmentList.filter(
+                (item) => item !== ""
+              );
+              View.setData("save-equipment", {
+                registration: stateContainer.addVehicleState.registration,
+                sideNumber: stateContainer.addVehicleState.sideNumber,
+                equipmentList: list,
+              });
+            }
+          },
+        },
+      },
+    ],
+  },
+];
 
 //Utility functions
 const handleAddEquipment = () => {

@@ -32,16 +32,16 @@ class View {
     }
   }
 
-  static getData([...events]) {
+  static getData([...events], data) {
     return new Promise((resolve, reject) => {
       const eventName = events[1];
       if (ipcRenderer.listenerCount(eventName) > 0) {
-        ipcRenderer.removeListener(eventName, this.dataListener);
+        ipcRenderer.removeAllListeners(eventName);
       }
       this.dataListener = (e, data) => {
         resolve(data);
       };
-      ipcRenderer.send(events[0]);
+      ipcRenderer.send(events[0], data && data);
       ipcRenderer.on(eventName, this.dataListener);
     });
   }
