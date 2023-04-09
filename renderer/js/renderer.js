@@ -1,5 +1,3 @@
-const { View } = window;
-
 // Global state object
 const stateContainer = {
   currentScreen: "",
@@ -20,13 +18,13 @@ const addVehicleScreen = () => {
     const addVehicleView = new View(root);
     addVehicleView.renderView([
       titleContainer("Dodaj pojazd"),
-      addVehicleContainer(equipmentListComponent),
+      contentContainer(equipmentListComponent()),
       optionsContainer(),
     ]);
     handleAddEquipment();
   }
 };
-const addChecklistScreen = (vehicle) => {
+const addChecklistScreen = (data) => {
   if (stateContainer.currentScreen !== "complete_checklist") {
     stateContainer.currentScreen = "complete_checklist";
     while (root.firstChild) {
@@ -34,8 +32,8 @@ const addChecklistScreen = (vehicle) => {
     }
     const completeChecklistView = new View(root);
     completeChecklistView.renderView([
-      titleContainer(vehicle),
-      addVehicleContainer(),
+      titleContainer(data.vehicle.registration),
+      listContainer(data.equipment),
       optionsContainer(),
     ]);
   }
@@ -69,9 +67,7 @@ const homeScreen = () => {
               e.currentTarget.id
             )
               .then((data) => {
-                addChecklistScreen(
-                  `Checklista pojazdu: ${data.vehicle.registration}`
-                );
+                addChecklistScreen(data);
               })
               .catch((err) => console.error(err));
           },
@@ -128,7 +124,7 @@ const titleContainer = (text) => {
   };
 };
 
-const listContainer = () => {
+const listContainer = (data) => {
   return {
     type: "div",
     className: "w-full rounded-lg mt-4",
@@ -138,6 +134,13 @@ const listContainer = () => {
         id: "tank_list",
         className:
           "w-4/5 shadow-xl rounded-lg text-center mx-auto p-6 bg-indigo-50 overflow-y-auto landscape:h-96",
+        children: data?.map((item) => {
+          return {
+            type: "li",
+            className: "text-left border-2 border-sky-500",
+            textContent: item.equipment_item,
+          };
+        }),
       },
     ],
   };
@@ -206,7 +209,7 @@ const optionsContainer = () => {
   };
 };
 
-const addVehicleContainer = (children) => {
+const contentContainer = (children) => {
   return {
     type: "div",
     className: "w-full rounded-lg mt-4",
@@ -221,70 +224,73 @@ const addVehicleContainer = (children) => {
   };
 };
 
-const equipmentListComponent = [
-  {
-    type: "div",
-    className: "text-xl	mb-2",
-    textContent: "Numer rejestracyjny:",
-  },
-  {
-    type: "input",
-    placeholder: "PO XXXX",
-    id: "registration",
-    className:
-      "text-xl	p-2 rounded-lg shadow-md focus:shadow-lg transition-shadow focus:outline-0  w-3/4",
-  },
-  {
-    type: "div",
-    className: "text-xl	mb-2 mt-2",
-    textContent: "Numer boczny:",
-  },
-  {
-    type: "input",
-    placeholder: "XXX",
-    id: "side_number",
-    className:
-      "text-xl	p-2 rounded-md shadow-md focus:shadow-lg transition-shadow focus:outline-0 w-1/2",
-  },
-  {
-    type: "h2",
-    className: "text-2xl text-center mt-6",
-    textContent: "Wyposażenie pojazdu",
-  },
-  {
-    type: "ul",
-    id: "equipment_list",
-    className: "mt-6",
-  },
-  {
-    type: "div",
-    className: "button_container",
-    children: [
-      {
-        type: "div",
-        id: "save_button",
-        className:
-          "cursor-pointer inline-block text-xl text-white	bg-green-600 active:bg-green-500 rounded-md	p-2 pl-8 pr-8",
-        textContent: "Zapisz",
-        eventHandler: {
-          event: "pointerdown",
-          handler: () => {
-            if (stateContainer.addVehicleState.equipmentList.length > 1) {
-              const list = stateContainer.addVehicleState.equipmentList.filter(
-                (item) => item !== ""
-              );
-              View.setData("save-equipment", {
-                registration: stateContainer.addVehicleState.registration,
-                sideNumber: stateContainer.addVehicleState.sideNumber,
-                equipmentList: list,
-              });
-            }
+const equipmentListComponent = () => {
+  return [
+    {
+      type: "div",
+      className: "text-xl	mb-2",
+      textContent: "Numer rejestracyjny:",
+    },
+    {
+      type: "input",
+      placeholder: "PO XXXX",
+      id: "registration",
+      className:
+        "text-xl	p-2 rounded-lg shadow-md focus:shadow-lg transition-shadow focus:outline-0  w-3/4",
+    },
+    {
+      type: "div",
+      className: "text-xl	mb-2 mt-2",
+      textContent: "Numer boczny:",
+    },
+    {
+      type: "input",
+      placeholder: "XXX",
+      id: "side_number",
+      className:
+        "text-xl	p-2 rounded-md shadow-md focus:shadow-lg transition-shadow focus:outline-0 w-1/2",
+    },
+    {
+      type: "h2",
+      className: "text-2xl text-center mt-6",
+      textContent: "Wyposażenie pojazdu",
+    },
+    {
+      type: "ul",
+      id: "equipment_list",
+      className: "mt-6",
+    },
+    {
+      type: "div",
+      className: "button_container",
+      children: [
+        {
+          type: "div",
+          id: "save_button",
+          className:
+            "cursor-pointer inline-block text-xl text-white	bg-green-600 active:bg-green-500 rounded-md	p-2 pl-8 pr-8",
+          textContent: "Zapisz",
+          eventHandler: {
+            event: "pointerdown",
+            handler: () => {
+              if (stateContainer.addVehicleState.equipmentList.length > 1) {
+                const list =
+                  stateContainer.addVehicleState.equipmentList.filter(
+                    (item) => item !== ""
+                  );
+                View.setData("save-equipment", {
+                  registration: stateContainer.addVehicleState.registration,
+                  sideNumber: stateContainer.addVehicleState.sideNumber,
+                  equipmentList: list,
+                });
+              }
+            },
           },
         },
-      },
-    ],
-  },
-];
+      ],
+    },
+  ];
+};
 
 //Utility functions
 const handleAddEquipment = () => {
