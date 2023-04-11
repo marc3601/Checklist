@@ -15,7 +15,8 @@ class View {
       if (
         attribute !== "children" &&
         attribute !== "type" &&
-        attribute !== "eventHandler"
+        attribute !== "eventHandler" &&
+        attribute !== "elementType"
       ) {
         tempRef[attribute] = item[attribute];
       } else if (attribute === "eventHandler") {
@@ -23,8 +24,11 @@ class View {
           item.eventHandler.event,
           item.eventHandler.handler
         );
+      } else if (attribute === "elementType") {
+        tempRef.setAttribute("type", item[attribute]);
       }
     }
+
     if (item.children) {
       item.children.forEach((child) => {
         View.renderItem(child, tempRef);

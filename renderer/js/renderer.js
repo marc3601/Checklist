@@ -32,7 +32,7 @@ const addChecklistScreen = (data) => {
     }
     const completeChecklistView = new View(root);
     completeChecklistView.renderView([
-      titleContainer(data.vehicle.registration),
+      titleContainer("Sprawdź pojazd"),
       listContainer(data.equipment),
       optionsContainer(),
     ]);
@@ -137,8 +137,31 @@ const listContainer = (data) => {
         children: data?.map((item) => {
           return {
             type: "li",
-            className: "text-left border-2 border-sky-500",
-            textContent: item.equipment_item,
+            className: "text-left flex mb-4 rounded-md justify-between text-xl",
+            children: [
+              {
+                type: "div",
+                className:
+                  "left rounded-md border-b-4 pl-2 flex-1 flex items-center mr-4",
+                children: [
+                  {
+                    type: "h2",
+                    textContent: item.equipment_item,
+                  },
+                ],
+              },
+              {
+                type: "label",
+                className: "form-control ",
+                children: [
+                  {
+                    type: "input",
+                    elementType: "checkbox",
+                    className: "right bg-orange-500 p-6 font-xl cursor-pointer",
+                  },
+                ],
+              },
+            ],
           };
         }),
       },
@@ -208,6 +231,8 @@ const optionsContainer = () => {
     ],
   };
 };
+
+//Subcomponents
 
 const contentContainer = (children) => {
   return {

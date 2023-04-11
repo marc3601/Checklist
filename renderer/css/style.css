@@ -12,21 +12,60 @@ ul::-webkit-scrollbar {
 
 .custom_container,
 ul {
-  /* overflow-y: scroll; */
-  /* margin: 0; */
-  /* padding: 0; */
-  /* width: 350px; */
   height: 800px;
-  /* background-color: #ddd; */
-  /* border-radius: 8px; */
 }
 
 li {
   list-style-type: none;
-  /* padding: 13px; */
 }
 
 #equipment_list {
   overflow: initial;
   height: fit-content;
+}
+
+input[type="checkbox"] {
+  /* Add if not using autoprefixer */
+  -webkit-appearance: none;
+  appearance: none;
+  /* For iOS < 15 to remove gradient background */
+  background-color: #fff;
+  /* Not removed via appearance */
+  margin: 0;
+  font: inherit;
+  width: 2em;
+  height: 2em;
+  border-radius: 0.15em;
+  transform: translate(-1em, 0em);
+  display: grid;
+  place-content: center;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+input[type="checkbox"]::before {
+  content: "";
+  width: 1em;
+  height: 1em;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em rgb(34 197 94);
+  transform-origin: bottom left;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+.form-control {
+  font-family: system-ui, sans-serif;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1.1;
+  display: grid;
+  grid-template-columns: 1em auto;
+}
+
+.form-control + .form-control {
+  margin-top: 1em;
 }
