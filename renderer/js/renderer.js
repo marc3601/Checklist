@@ -6,12 +6,16 @@ const stateContainer = {
     sideNumber: "",
     equipmentList: [""],
   },
+  addChecklistState: {
+    equipmentChecked: [],
+  },
 };
 
 // Screens render functions
 const addVehicleScreen = () => {
   if (stateContainer.currentScreen !== "add_vehicle") {
     stateContainer.currentScreen = "add_vehicle";
+    stateContainer.addChecklistState.equipmentChecked = [];
     while (root.firstChild) {
       root.removeChild(root.firstChild);
     }
@@ -27,12 +31,13 @@ const addVehicleScreen = () => {
 const addChecklistScreen = (data) => {
   if (stateContainer.currentScreen !== "complete_checklist") {
     stateContainer.currentScreen = "complete_checklist";
+    stateContainer.addChecklistState.equipmentChecked = [];
     while (root.firstChild) {
       root.removeChild(root.firstChild);
     }
     const completeChecklistView = new View(root);
     completeChecklistView.renderView([
-      titleContainer("Sprawdź pojazd"),
+      titleContainer(`Sprawdź pojazd: ${data.vehicle.registration}`),
       listContainer(data.equipment),
       optionsContainer(),
     ]);
@@ -42,6 +47,7 @@ const addChecklistScreen = (data) => {
 const homeScreen = () => {
   if (stateContainer.currentScreen !== "home") {
     stateContainer.currentScreen = "home";
+    stateContainer.addChecklistState.equipmentChecked = [];
     while (root.firstChild) {
       root.removeChild(root.firstChild);
     }
@@ -134,36 +140,22 @@ const listContainer = (data) => {
         id: "tank_list",
         className:
           "w-4/5 shadow-xl rounded-lg text-center mx-auto p-6 bg-indigo-50 overflow-y-auto landscape:h-96",
-        children: data?.map((item) => {
-          return {
-            type: "li",
-            className: "text-left flex mb-4 rounded-md justify-between text-xl",
-            children: [
-              {
-                type: "div",
-                className:
-                  "left rounded-md border-b-4 pl-2 flex-1 flex items-center mr-4",
-                children: [
-                  {
-                    type: "h2",
-                    textContent: item.equipment_item,
-                  },
-                ],
-              },
-              {
-                type: "label",
-                className: "form-control ",
-                children: [
-                  {
-                    type: "input",
-                    elementType: "checkbox",
-                    className: "right bg-orange-500 p-6 font-xl cursor-pointer",
-                  },
-                ],
-              },
-            ],
-          };
-        }),
+        children: checklistCreateComponent(data),
+      },
+    ],
+  };
+};
+
+const contentContainer = (children) => {
+  return {
+    type: "div",
+    className: "w-full rounded-lg mt-4",
+    children: [
+      {
+        type: "div",
+        className:
+          "custom_container w-4/5 shadow-xl rounded-lg mx-auto p-10 bg-indigo-50 overflow-y-auto landscape:h-96",
+        children,
       },
     ],
   };
@@ -234,21 +226,6 @@ const optionsContainer = () => {
 
 //Subcomponents
 
-const contentContainer = (children) => {
-  return {
-    type: "div",
-    className: "w-full rounded-lg mt-4",
-    children: [
-      {
-        type: "div",
-        className:
-          "custom_container w-4/5 shadow-xl rounded-lg mx-auto p-10 bg-indigo-50 overflow-y-auto landscape:h-96",
-        children,
-      },
-    ],
-  };
-};
-
 const equipmentListComponent = () => {
   return [
     {
@@ -315,6 +292,79 @@ const equipmentListComponent = () => {
       ],
     },
   ];
+};
+
+const checklistCreateComponent = (data) => {
+  let result = [];
+  result = data?.map((item) => ({
+    type: "li",
+    className: "text-left flex mb-4 rounded-md justify-between text-xl",
+    children: [
+      {
+        type: "div",
+        className:
+          "left rounded-md border-b-2 border-l-2 border-blue-300	 pl-2 flex-1 flex items-center mr-4",
+        children: [
+          {
+            type: "h2",
+            textContent: item.equipment_item,
+          },
+        ],
+      },
+      {
+        type: "label",
+        className: "form-control ",
+        children: [
+          {
+            type: "input",
+            elementType: "checkbox",
+            className: "right bg-orange-500 p-8 font-xl cursor-pointer",
+            id: item.equipment_item,
+            eventHandler: {
+              event: "pointerdown",
+              handler: (e) => {
+                if (
+                  !stateContainer.addChecklistState.equipmentChecked.includes(
+                    e.currentTarget.id
+                  ) &&
+                  !e.currentTarget.checked
+                ) {
+                  stateContainer.addChecklistState.equipmentChecked.push(
+                    e.currentTarget.id
+                  );
+                } else {
+                  const filtered =
+                    stateContainer.addChecklistState.equipmentChecked.filter(
+                      (item) => item !== e.currentTarget.id
+                    );
+
+                  stateContainer.addChecklistState.equipmentChecked = filtered;
+                }
+              },
+            },
+          },
+        ],
+      },
+    ],
+  }));
+
+  result?.push({
+    type: "li",
+    className: "button_container flex mt-6",
+    children: [
+      {
+        type: "div",
+        className:
+          "cursor-pointer inline-block text-xl text-white	bg-green-600 active:bg-green-500 rounded-md	p-2 pl-8 pr-8",
+        textContent: "Zapisz",
+        eventHandler: {
+          event: "pointerdown",
+          handler: (e) => {},
+        },
+      },
+    ],
+  });
+  return result;
 };
 
 //Utility functions

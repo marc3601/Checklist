@@ -58,10 +58,22 @@ app.whenReady().then(() => {
               [equipment_id, item],
               function (err) {
                 if (err) throw console.log(err);
-                console.log("Vehicle data inserted successfully");
+                console.log("vehicle_equipment_lists");
               }
             );
           }
+
+          //TEST
+          // for (item of vehicle_equipment_list) {
+          //   db.run(
+          //     `INSERT INTO checklists (equipment_id, equipment_item) VALUES (?, ?);`,
+          //     [equipment_id, item],
+          //     function (err) {
+          //       if (err) throw console.log(err);
+          //       console.log("checklists");
+          //     }
+          //   );
+          // }
         }
       );
     });
@@ -75,6 +87,10 @@ app.on("window-all-closed", () => {
   app.quit();
 });
 
+// db.all(`SELECT * FROM checklists`, function (err, rows) {
+//   console.log(rows);
+// });
+
 getVehicleChecklist = (vehicle) => {
   return new Promise((resolve, reject) => {
     // Get specified vehicle list of equipment
@@ -83,9 +99,9 @@ getVehicleChecklist = (vehicle) => {
       db.get(
         `SELECT * FROM vehicles WHERE registration = ?`,
         [vehicle],
-        function (err, rows) {
+        function (err, row) {
           if (err) reject(err);
-          container.vehicle = rows;
+          container.vehicle = row;
         }
       );
       db.all(
@@ -120,6 +136,19 @@ db.serialize(() => {
         id INTEGER PRIMARY KEY,
         equipment_id INTEGER NOT NULL,
         equipment_item TEXT NOT NULL,
+        FOREIGN KEY (equipment_id) REFERENCES vehicles (id)
+        );
+        `,
+    (err) => {
+      if (err) throw err;
+    }
+  );
+  db.run(
+    `CREATE TABLE IF NOT EXISTS checklists (
+        id INTEGER PRIMARY KEY,
+        equipment_id INTEGER NOT NULL,
+        equipment_item TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT (datetime('now','localtime')),
         FOREIGN KEY (equipment_id) REFERENCES vehicles (id)
         );
         `,
