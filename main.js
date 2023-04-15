@@ -6,7 +6,7 @@ const { requestChecklist } = require("./handlers/requestChecklist");
 const {
   addNewVehicleAndEquipment,
 } = require("./handlers/addNewVehicleAndEquipment");
-
+const { addNewChecklist } = require("./handlers/addNewChecklist");
 const createWindow = () => {
   const window = new BrowserWindow({
     title: "Checklist",
@@ -37,6 +37,7 @@ app.whenReady().then(() => {
   ipcMain.on("request-checklist", requestChecklist);
 
   ipcMain.on("save-equipment", addNewVehicleAndEquipment);
+  ipcMain.on("save-checklist", addNewChecklist);
 });
 
 //app ID for Windows notifications

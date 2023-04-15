@@ -7,6 +7,7 @@ const stateContainer = {
     equipmentList: [""],
   },
   addChecklistState: {
+    currentVehicle: [],
     equipmentChecked: [],
   },
 };
@@ -73,7 +74,10 @@ const homeScreen = () => {
               e.currentTarget.id
             )
               .then((data) => {
-                addChecklistScreen(data);
+                stateContainer.addChecklistState.currentVehicle = data;
+                addChecklistScreen(
+                  stateContainer.addChecklistState.currentVehicle
+                );
               })
               .catch((err) => console.error(err));
           },
@@ -359,7 +363,38 @@ const checklistCreateComponent = (data) => {
         textContent: "Zapisz",
         eventHandler: {
           event: "pointerdown",
-          handler: (e) => {},
+          handler: (e) => {
+            const completedChecklist =
+              stateContainer.addChecklistState.currentVehicle.equipment.map(
+                (item) => {
+                  if (
+                    stateContainer.addChecklistState.equipmentChecked.includes(
+                      item.equipment_item
+                    )
+                  ) {
+                    return {
+                      equipment_item: item.equipment_item,
+                      isPresent: true,
+                    };
+                  } else {
+                    return {
+                      equipment_item: item.equipment_item,
+                      isPresent: false,
+                    };
+                  }
+                }
+              );
+            View.setData("save-checklist", {
+              id: stateContainer.addChecklistState.currentVehicle.vehicle.id,
+              registration:
+                stateContainer.addChecklistState.currentVehicle.vehicle
+                  .registration,
+              sideNumber:
+                stateContainer.addChecklistState.currentVehicle.vehicle
+                  .sideNumber,
+              completedChecklist: completedChecklist,
+            });
+          },
         },
       },
     ],

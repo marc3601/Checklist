@@ -1,6 +1,6 @@
 const sqlite3 = require("sqlite3").verbose();
 
-async function addNewVehicle(data) {
+async function saveNewVehicle(data) {
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database("./database.db", (err) => {
       if (err) {
@@ -32,4 +32,4 @@ async function addNewVehicle(data) {
   });
 }
 
-module.exports = { addNewVehicle };
+module.exports = { saveNewVehicle };
