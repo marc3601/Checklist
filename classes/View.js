@@ -50,8 +50,16 @@ class View {
     });
   }
 
-  static setData(event, data) {
-    ipcRenderer.send(event, data);
+  static setData([...events], data) {
+    return new Promise((resolve, reject) => {
+      const eventName = events[1];
+      ipcRenderer.send(events[0], data);
+      if (events.length > 1) {
+        ipcRenderer.on(eventName, (e, response) => {
+          resolve(response);
+        });
+      }
+    });
   }
 
   renderView([...items]) {

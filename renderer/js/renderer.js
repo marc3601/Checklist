@@ -284,11 +284,11 @@ const equipmentListComponent = () => {
                   stateContainer.addVehicleState.equipmentList.filter(
                     (item) => item !== ""
                   );
-                View.setData("save-equipment", {
+                View.setData(["save-equipment", "save-equipment-status"], {
                   registration: stateContainer.addVehicleState.registration,
                   sideNumber: stateContainer.addVehicleState.sideNumber,
                   equipmentList: list,
-                });
+                }).then((res) => console.log(res));
               }
             },
           },
@@ -384,7 +384,7 @@ const checklistCreateComponent = (data) => {
                   }
                 }
               );
-            View.setData("save-checklist", {
+            View.setData(["save-checklist", "send-checklist-status"], {
               id: stateContainer.addChecklistState.currentVehicle.vehicle.id,
               registration:
                 stateContainer.addChecklistState.currentVehicle.vehicle
@@ -393,7 +393,7 @@ const checklistCreateComponent = (data) => {
                 stateContainer.addChecklistState.currentVehicle.vehicle
                   .sideNumber,
               completedChecklist: completedChecklist,
-            });
+            }).then((res) => console.log(res));
           },
         },
       },

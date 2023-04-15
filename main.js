@@ -7,6 +7,8 @@ const {
   addNewVehicleAndEquipment,
 } = require("./handlers/addNewVehicleAndEquipment");
 const { addNewChecklist } = require("./handlers/addNewChecklist");
+const { testDbQueries } = require("./test/database.test");
+
 const createWindow = () => {
   const window = new BrowserWindow({
     title: "Checklist",
@@ -42,6 +44,9 @@ app.whenReady().then(() => {
 
 //app ID for Windows notifications
 app.setAppUserModelId("Checklista");
+
+// test db queries
+// testDbQueries();
 
 app.on("window-all-closed", () => {
   app.quit();

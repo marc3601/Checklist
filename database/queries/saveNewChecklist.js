@@ -23,13 +23,13 @@ async function saveNewChecklist(data) {
               [checklistID, item.equipment_item, isPresent],
               function (err) {
                 if (err) throw err;
+                resolve("Checklista zapisana.");
               }
             );
           }
         });
       }
     );
-    console.log(data);
   });
 }
 

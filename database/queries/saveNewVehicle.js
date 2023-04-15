@@ -22,13 +22,13 @@ async function saveNewVehicle(data) {
               [equipment_id, item],
               function (err) {
                 if (err) throw err;
+                resolve("Pojazd został dodany.");
               }
             );
           }
         });
       }
     );
-    resolve("Vehicle added");
   });
 }
 
