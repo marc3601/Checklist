@@ -68,19 +68,7 @@ const homeScreen = () => {
         id: `${license}`,
         eventHandler: {
           event: "pointerdown",
-          handler: (e) => {
-            View.getData(
-              ["request-checklist", "send-checklist"],
-              e.currentTarget.id
-            )
-              .then((data) => {
-                stateContainer.addChecklistState.currentVehicle = data;
-                addChecklistScreen(
-                  stateContainer.addChecklistState.currentVehicle
-                );
-              })
-              .catch((err) => console.error(err));
-          },
+          handler: handleShowChecklistForCompletion,
         },
         children: [
           {
@@ -393,7 +381,15 @@ const checklistCreateComponent = (data) => {
                 stateContainer.addChecklistState.currentVehicle.vehicle
                   .sideNumber,
               completedChecklist: completedChecklist,
-            }).then((res) => console.log(res));
+            }).then((res) => {
+              const tank_list = document.getElementById("tank_list");
+              const feedback = document.createElement("div");
+              feedback.textContent = res;
+              tank_list.appendChild(feedback);
+              setTimeout(() => {
+                tank_list.removeChild(feedback);
+              }, 1000);
+            });
           },
         },
       },
@@ -504,6 +500,15 @@ const handleAddEquipment = () => {
       }));
     })()
   );
+};
+
+const handleShowChecklistForCompletion = (e) => {
+  View.getData(["request-checklist", "send-checklist"], e.currentTarget.id)
+    .then((data) => {
+      stateContainer.addChecklistState.currentVehicle = data;
+      addChecklistScreen(stateContainer.addChecklistState.currentVehicle);
+    })
+    .catch((err) => console.error(err));
 };
 
 // Home screen initial render

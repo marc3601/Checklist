@@ -53,6 +53,9 @@ class View {
   static setData([...events], data) {
     return new Promise((resolve, reject) => {
       const eventName = events[1];
+      if (ipcRenderer.listenerCount(eventName) > 0) {
+        ipcRenderer.removeAllListeners(eventName);
+      }
       ipcRenderer.send(events[0], data);
       if (events.length > 1) {
         ipcRenderer.on(eventName, (e, response) => {
